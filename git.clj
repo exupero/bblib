@@ -1,25 +1,33 @@
 (ns git
-  (:require [clojure.java.shell :as shell]))
+  (:require [clojure.java.shell :as shell]
+            [clojure.string :as str]))
+
+(defn run [dir cmd]
+  (shell/with-sh-dir dir
+    (let [{:keys [out err exit]} (apply shell/sh cmd)]
+      (if (pos? exit)
+        (throw (Exception. err))
+        (str/trim out)))))
 
 (defn root
   ([] (root nil))
   ([dir]
-   (shell/sh ["git" "rev-parse" "--show-toplevel"] :dir dir)))
+   (run dir ["git" "rev-parse" "--show-toplevel"])))
 
 (defn commit
   ([] (commit nil))
   ([dir]
-   (shell/sh ["git" "rev-parse" "HEAD"] :dir dir)))
+   (run dir ["git" "rev-parse" "HEAD"])))
 
 (defn branch
   ([] (branch nil))
   ([dir]
-   (shell/sh ["git" "rev-parse" "--abbrev-ref" "HEAD"] :dir dir)))
+   (run dir ["git" "rev-parse" "--abbrev-ref" "HEAD"])))
 
 (defn origin
   ([] (origin nil))
   ([dir]
-   (shell/sh ["git" "config" "--get" "remote.origin.url"] :dir dir)))
+   (run dir ["git" "config" "--get" "remote.origin.url"])))
 
 (defn path
   ([repo-path] (path nil repo-path))
@@ -29,4 +37,4 @@
 (defn full-path
   ([relative-path] (full-path nil relative-path))
   ([dir relative-path]
-   (shell/sh ["git" "ls-files" "--full-name" relative-path] :dir dir)))
+   (run dir ["git" "ls-files" "--full-name" relative-path])))
