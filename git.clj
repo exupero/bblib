@@ -28,8 +28,8 @@
 (defn-with-dir origin []
   (run "git" "config" "--get" "remote.origin.url"))
 
-(defn-with-dir path [path]
-  (str (root) "/" path))
+(defn-with-dir path [subpath]
+  (str (root) "/" subpath))
 
 (defn-with-dir full-path [relative-path]
   (run "git" "ls-files" "--full-name" relative-path))
