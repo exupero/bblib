@@ -7,10 +7,6 @@
 (deps/add-deps '{:deps {mvxcvi/puget {:mvn/version "1.3.4"}}})
 (require '[puget.printer :as puget])
 
-(defn to-clipboard [s]
-  (shell/sh "pbcopy" :in s)
-  s)
-
 (defn print-table [rows]
   (-> (shell/sh "ramda" "-o" "table" "--compact" :in (json/generate-string rows))
       :out

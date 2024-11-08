@@ -17,6 +17,9 @@
 (defn isoformat-datetime [t]
   (.format dtf/iso-offset-date-time t))
 
+(defn isoformat-today []
+  (.format (now) (dtf/of-pattern "yyyy-MM-dd")))
+
 (defn isoformat-date [d]
   (.format (java.text.SimpleDateFormat. "yyyy-MM-dd'T'HH:mm:ss.SSSXXX") d))
 
