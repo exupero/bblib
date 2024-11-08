@@ -1,39 +1,46 @@
 (ns pull)
 
+(declare crawl)
+
 (defn pluck [o fields fetch]
+  (into {}
+        (map (fn [field]
+               (cond
+                 (or (keyword? field)
+                     (string? field))
+                 , [field (get o field)]
+                 (map? field)
+                 , (let [[k fields] (first field)]
+                     (cond
+                       (keyword? k)
+                       , (let [o' (if (namespace k)
+                                    (fetch [k o])
+                                    (get o k))]
+                           [k (crawl o' fields fetch)])
+                       (vector? k)
+                       , (let [[q & params] k
+                               filt (into [q o] params)]
+                           [q (crawl (fetch filt) fields fetch)])))
+                 :else
+                 , (throw (Exception. (str "don't know how to get field " (pr-str field) " from " (pr-str o)))))))
+        fields))
+
+(defn crawl [o fields fetch]
   (cond
+    (nil? o)
+    , o
     (map? o)
     , (if (= '[*] fields)
         o
-        (into {}
-              (map (fn [field]
-                     (cond
-                       (or (keyword? field)
-                           (string? field))
-                       , [field (get o field)]
-                       (map? field)
-                       , (let [[k fields] (first field)]
-                           (cond
-                             (keyword? k)
-                             , (let [o' (if (namespace k)
-                                          (fetch [k o])
-                                          (get o k))]
-                                 [k (pluck o' fields fetch)])
-                             (vector? k)
-                             , (let [[q & params] k
-                                     filt (into [q o] params)]
-                                 [q (pluck (fetch filt) fields fetch)])))
-                       :else
-                       , (throw (Exception. (str "don't know how to get field " (pr-str field)))))))
-              fields))
+        (pluck o fields fetch))
     (sequential? o)
-    , (map #(pluck % fields fetch) o)
+    , (map #(crawl % fields fetch) o)
     :else
-    , (throw (Exception. (str "don't know how to pluck fields from " (pr-str o))))))
+    , (pluck o fields fetch)))
 
 (defn pull [q fetch]
   (let [[filt fields] (first q)]
-    (pluck (fetch filt) fields fetch)))
+    (crawl (fetch filt) fields fetch)))
 
 (comment
   (defmulti fetch first)
