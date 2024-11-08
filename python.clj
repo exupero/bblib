@@ -3,8 +3,7 @@
   (:require [clojure.string :as str]
             [babashka.deps :as deps]
             [babashka.process :as p]
-            [cheshire.core :as json]
-            py))
+            [cheshire.core :as json]))
 (deps/add-deps '{:deps {meander/epsilon {:mvn/version "0.0.650"}}})
 (require '[meander.epsilon :as m]
          '[meander.strategy.epsilon :as m*])
@@ -96,6 +95,7 @@
                       ?kwargs)}))
 
 (comment
+  (ast '(py/attr (py/list [1]) b))
   (ast '(py/list [1 2 3]))
   (ast '(py/dict {:a 1 :b 2}))
   (ast '(py/invoke a [b]))
