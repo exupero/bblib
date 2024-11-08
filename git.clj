@@ -22,7 +22,7 @@
 (defn branch
   ([] (branch nil))
   ([dir]
-   (run dir ["git" "rev-parse" "--abbrev-ref" "HEAD"])))
+   (run dir ["git" "branch" "--show-current"])))
 
 (defn origin
   ([] (origin nil))
