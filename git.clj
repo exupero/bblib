@@ -40,3 +40,8 @@
 
 (defn-with-dir status []
   (run "git" "status" "--short"))
+
+(defn-with-dir origin []
+  (let [{:keys [out exit]} (shell/sh "git" "remote" "get-url" "origin")]
+    (when (zero? exit)
+      (str/trim out))))
