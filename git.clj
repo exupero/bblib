@@ -1,40 +1,41 @@
 (ns git
-  (:require [clojure.java.shell :as shell]
-            [clojure.string :as str]))
+  (:require [clojure.java.shell :as shell]))
 
-(defn run [dir cmd]
-  (shell/with-sh-dir dir
-    (let [{:keys [out err exit]} (apply shell/sh cmd)]
-      (if (pos? exit)
-        (throw (Exception. err))
-        (str/trim out)))))
+(defn run [& cmd]
+  (let [{:keys [out err exit]} (apply shell/sh cmd)]
+    (if (pos? exit)
+      (throw (Exception. err))
+      out)))
 
-(defn root
-  ([] (root nil))
-  ([dir]
-   (run dir ["git" "rev-parse" "--show-toplevel"])))
+(defmacro defn-with-dir [nm args & body]
+  (let [dir (gensym 'dir)]
+    `(defn ~nm
+       (~args (~nm nil ~@args))
+       (~(into [dir] args)
+        (shell/with-sh-dir ~dir
+          ~@body)))))
 
-(defn commit
-  ([] (commit nil))
-  ([dir]
-   (run dir ["git" "rev-parse" "HEAD"])))
+(defn-with-dir root []
+  (run "git" "rev-parse" "--show-toplevel"))
 
-(defn branch
-  ([] (branch nil))
-  ([dir]
-   (run dir ["git" "branch" "--show-current"])))
+(defn-with-dir commit []
+  (run "git" "rev-parse" "HEAD"))
 
-(defn origin
-  ([] (origin nil))
-  ([dir]
-   (run dir ["git" "config" "--get" "remote.origin.url"])))
+(defn-with-dir branch []
+  (run "git" "branch" "--show-current"))
 
-(defn path
-  ([repo-path] (path nil repo-path))
-  ([dir repo-path]
-   (str (root dir) "/" repo-path)))
+(defn-with-dir origin []
+  (run "git" "config" "--get" "remote.origin.url"))
 
-(defn full-path
-  ([relative-path] (full-path nil relative-path))
-  ([dir relative-path]
-   (run dir ["git" "ls-files" "--full-name" relative-path])))
+(defn-with-dir path [path]
+  (str (root) "/" path))
+
+(defn-with-dir full-path [relative-path]
+  (run "git" "ls-files" "--full-name" relative-path))
+
+(defn-with-dir changes? []
+  (let [{:keys [exit]} (shell/sh "git" "diff" "--quiet")]
+    (pos? exit)))
+
+(defn-with-dir status []
+  (run "git" "status" "--short"))
