@@ -1,11 +1,12 @@
 (ns git
-  (:require [clojure.java.shell :as shell]))
+  (:require [clojure.java.shell :as shell]
+            [clojure.string :as str]))
 
 (defn run [& cmd]
   (let [{:keys [out err exit]} (apply shell/sh cmd)]
     (if (pos? exit)
       (throw (Exception. err))
-      out)))
+      (str/trimr out))))
 
 (defmacro defn-with-dir [nm args & body]
   (let [dir (gensym 'dir)]

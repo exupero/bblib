@@ -10,23 +10,25 @@
 (defn find-file [nm]
   (let [nm (name nm)]
     (some (fn [root]
-            (let [f (io/file root (str nm ".edn"))]
+            (let [f (io/file root nm)]
               (when (.exists f) f)))
           roots)))
 
 (defn content [nm]
-  (slurp (find-file nm)))
+  (some-> (name nm) find-file  slurp))
 
 (defn path [nm]
   (str (first roots) "/" (name nm) ".edn"))
 
 (defn read [nm]
-  (-> nm find-file slurp read-string))
+  (some-> (str (name nm) ".edn") find-file slurp read-string))
 
 (defn read-as [nm fmt]
-  (->> nm find-file slurp
-       (format fmt)
-       (edn/read-string {:default tagged-literal})))
+  (some->> (str (name nm) ".edn")
+           find-file
+           slurp
+           (format fmt)
+           (edn/read-string {:default tagged-literal})))
 
 (defn read-list [nm]
   (read-as nm "[%s]"))
