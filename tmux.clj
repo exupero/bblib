@@ -30,8 +30,10 @@
     (when-not (str/blank? out)
       (str/trim out))))
 
-(defn split-horizontal []
-  (tmux :split-window :h))
+(defn split-horizontal
+  ([] (tmux :split-window :h))
+  ([target]
+   (tmux :split-window :h :t target)))
 
 (defn send [target & ss]
   (apply tmux :send :t target ss))
