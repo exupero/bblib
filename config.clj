@@ -1,6 +1,7 @@
 (ns config
   (:refer-clojure :exclude [read])
-  (:require clojure.pprint))
+  (:require [clojure.edn :as edn]
+            clojure.pprint))
 
 (def root (str (System/getenv "CLJ_CONFIGS_PATH") "/"))
 
@@ -14,7 +15,9 @@
   (-> nm path slurp read-string))
 
 (defn read-as [nm fmt]
-  (->> nm path slurp (format fmt) read-string))
+  (->> nm path slurp
+       (format fmt)
+       (edn/read-string {:default tagged-literal})))
 
 (defn read-list [nm]
   (read-as nm "[%s]"))

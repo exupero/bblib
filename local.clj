@@ -2,5 +2,11 @@
   (:require [clojure.java.io :as io]
             [clojure.string :as str]))
 
+(defn file [root & path-parts]
+  (io/file (apply str root "/" (str/join "/" path-parts))))
+
 (defn home [& path-parts]
-  (io/file (apply str (System/getenv "HOME") "/" (str/join "/" path-parts))))
+  (apply file (System/getenv "HOME") path-parts))
+
+(defn code [& path-parts]
+  (apply file (System/getenv "CODE_PATH") path-parts))
