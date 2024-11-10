@@ -41,6 +41,15 @@
 (defn submit [target & ss]
   (apply tmux :send :t target (concat ss ["C-m"])))
 
+(defn new-session [nm dir]
+  (tmux :new-session :d :s (name nm) :c (str dir)))
+
+(defn switch-client [target]
+  (tmux :switch-client :t target))
+
+(defn source [target file]
+  (tmux :source-file :t target file))
+
 (defn new-window [target & opts]
   (apply tmux :new-window :t target opts))
 
@@ -55,9 +64,6 @@
 
 (defn unlink-window [target]
   (tmux :unlink-window :t target))
-
-(defn switch-client [target]
-  (tmux :switch-client :t target))
 
 (defn has-target? [t]
   (-> (tmux* {:err nil, :continue true} :has-session :t t)
