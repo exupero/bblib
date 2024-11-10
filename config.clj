@@ -15,7 +15,7 @@
           roots)))
 
 (defn content [nm]
-  (some-> (name nm) find-file  slurp))
+  (some-> (name nm) find-file slurp))
 
 (defn path [nm]
   (str (first roots) "/" (name nm) ".edn"))
