@@ -12,14 +12,15 @@
     (map? field)
     , (let [[k vs] (first field)]
         (if (vector? k)
-          {:fetch k :sub (map sub vs)}
+          {:fetch {:fetcher (first k) :args (rest k)}
+           :sub (map sub vs)}
           {:key k :sub (map sub vs)}))
     :else
     , nil))
 
 (defn spec [q]
   (let [[query fields] (first q)]
-    (cond-> {:fetch query}
+    (cond-> {:fetch {:fetcher (first query) :args (rest query)}}
       (and (seq fields)
            (not= '[*] fields))
       , (assoc :sub (map sub fields)))))
@@ -28,36 +29,36 @@
 (comment
   (spec {[:a ""] []})
   ; =>
-  {:fetch [:a ""]}
+  {:fetch {:fetcher :a :args [""]}}
 
   (spec {[:a ""] ['*]})
   ; =>
-  {:fetch [:a ""]}
+  {:fetch {:fetcher :a :args [""]}}
 
   (spec {[:a ""] [:name]})
   ; =>
-  {:fetch [:a ""]
+  {:fetch {:fetcher :a :args [""]}
    :sub [{:key :name}]}
 
   (spec {[:a ""] [:name {:friends [:name]}]})
   ; =>
-  {:fetch [:a ""]
+  {:fetch {:fetcher :a :args [""]}
    :sub [{:key :name}
          {:key :friends
           :sub [{:key :name}]}]}
 
   (spec {[:a ""] [{[:friends] [:name]}]})
   ; =>
-  {:fetch [:a ""]
-   :sub [{:fetch [:friends]
+  {:fetch {:fetcher :a :args [""]}
+   :sub [{:fetch {:fetcher :friends :args []}
           :sub [{:key :name}]}]}
 
   (spec {[:a ""] [{[:friends] [:name {[:status] [:mood]}]}]})
   ; =>
-  {:fetch [:a ""]
-   :sub [{:fetch [:friends]
+  {:fetch {:fetcher :a :args [""]}
+   :sub [{:fetch {:fetcher :friends :args []}
           :sub [{:key :name}
-                {:fetch [:status]
+                {:fetch {:fetcher :status :args []}
                  :sub [{:key :mood}]}]}]})
 
 (defn get-subs [o sub f]
@@ -66,14 +67,13 @@
     , (into {}
             (comp
               (map (fn [s]
-                     (let [{k :key :keys [fetch sub]} s]
+                     (let [{k :key {:keys [fetcher args]} :fetch :keys [sub]} s]
                        (cond
                          k
                          , [k (get o k)]
-                         fetch
-                         , (let [[k & args] fetch
-                                 o (apply f k o args)]
-                             [(first fetch) (get-subs o sub f)]))))))
+                         fetcher
+                         , (let [o (apply f fetcher o args)]
+                             [fetcher (get-subs o sub f)]))))))
             sub)
     (sequential? o)
     , (map #(get-subs % sub f) o)
@@ -81,8 +81,8 @@
     , (throw (Exception. (str "don't know how to get subs for " (pr-str o))))))
 
 (defn pull [q f]
-  (let [{:keys [fetch sub]} (spec q)]
-    (get-subs (apply f fetch) sub f)))
+  (let [{{:keys [fetcher args]} :fetch :keys [sub]} (spec q)]
+    (get-subs (apply f fetcher args) sub f)))
 
 ^:rct/test
 (comment
