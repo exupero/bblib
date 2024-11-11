@@ -1,6 +1,6 @@
 (ns time
   (:require [babashka.deps :as deps]))
-(deps/add-deps '{:deps {cljc.java-time/cljc.java-time {:mvn/version "0.1.21"}}})
+(deps/add-deps '{:deps {com.widdindustries/cljc.java-time {:mvn/version "0.1.21"}}})
 (require '[cljc.java-time.format.date-time-formatter :as dtf]
          '[cljc.java-time.offset-date-time :as odt]
          '[cljc.java-time.local-date :as ld]
