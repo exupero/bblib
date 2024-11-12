@@ -12,8 +12,9 @@
 
 (def now odt/now)
 (def plus-days odt/plus-days)
-(def plus-minutes odt/plus-minutes)
 (def minus-days odt/minus-days)
+(def plus-minutes odt/plus-minutes)
+(def minus-minutes odt/minus-minutes)
 
 (defn isoformat-datetime [t]
   (.format dtf/iso-offset-date-time t))
