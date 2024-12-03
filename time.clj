@@ -61,6 +61,9 @@
 (defn iso->nanos [iso]
   (as-nanos (parse iso)))
 
+(defn seconds->days [s]
+  (/ s 60 60 24))
+
 (defn date-extent [dates]
   (let [instants (->> dates (keep #(some-> % .toInstant)) sort)]
     [(first instants) (last instants)]))

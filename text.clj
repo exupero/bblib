@@ -39,3 +39,7 @@
 (defn truncate [s n]
   (when (and s (not (neg? n)))
     (subs s 0 (min (count s) n))))
+
+(defn update-file [path f & args]
+  (let [content (slurp path)]
+    (spit path (apply f content args))))
