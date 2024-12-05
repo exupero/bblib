@@ -253,7 +253,18 @@
   ((thru (literal "p")) "abcde" nil 0) ;=> nil
   nil)
 
-; TODO `sub`
+(defn sub [window-parser parser]
+  (fn [input args position]
+    (when-let [o (window-parser input args position)]
+      (let [o' (parser (o :r) args position)]
+        {:i (o :i)
+         :r (o' :r)
+         :p (o :p)}))))
+
+^:rct/test
+(comment
+  ((sub (to (literal ";")) (any (choice (literal "a") (literal ";")))) "aaa;aaa" nil 0) ;=> {:i ";aaa" :r "aaa" :p 3}
+  nil)
 
 ; Captures
 
