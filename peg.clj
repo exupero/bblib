@@ -41,11 +41,11 @@
 
 (defn range [cs]
   (let [[low high] (map int cs)]
-    (fn [input _ _]
+    (fn [input _ position]
       (when (<= low (int (first input)) high)
         {:i (subs input 1)
          :r (str (first input))
-         :p 1}))))
+         :p (inc position)}))))
 
 ^:rct/test
 (comment
@@ -54,12 +54,12 @@
   nil)
 
 (defn regex [pattern]
-  (fn [input _ _]
+  (fn [input _ position]
     (when-let [r (re-find (re-pattern (str "^" pattern)) input)]
       (let [c (count r)]
         {:i (subs input c)
          :r r
-         :p c}))))
+         :p (+ position c)}))))
 
 ^:rct/test
 (comment
@@ -67,11 +67,11 @@
   nil)
 
 (defn set [cs]
-  (fn [input _ _]
+  (fn [input _ position]
     (when-let [c ((clojure.core/set cs) (first input))]
       {:i (subs input 1)
        :r (str c)
-       :p 1})))
+       :p (inc position)})))
 
 ^:rct/test
 (comment
@@ -82,20 +82,20 @@
   nil)
 
 (defn take [n]
-  (fn [input _ _]
+  (fn [input _ position]
     (cond
       (zero? n)
-      , {:i input :p 0}
+      , {:i input :p position}
       (pos? n)
       , (when (<= n (count input))
           {:i (subs input n)
            :r (subs input 0 n)
-           :p n})
+           :p (+ position n)})
       (neg? n)
       , (let [c (count input)]
           (when (< c (Math/abs n))
             {:i input
-             :p c})))))
+             :p (+ position c)})))))
 
 ^:rct/test
 (comment
@@ -307,11 +307,11 @@
 
 (defn constant
   ([c]
-   (fn [input _ _]
-     {:i input :r c :c [c] :p 0}))
+   (fn [input _ position]
+     {:i input :r c :c [c] :p position}))
   ([c tag]
-   (fn [input _ _]
-     {:i input :r c :c [{tag c}] :p 0})))
+   (fn [input _ position]
+     {:i input :r c :c [{tag c}] :p position})))
 
 ^:rct/test
 (comment
