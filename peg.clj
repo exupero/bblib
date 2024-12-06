@@ -9,6 +9,12 @@
 ; :c = captures
 ; :p = position in input
 
+(defn try-match
+  ([parser input] (try-match parser input nil))
+  ([parser input args] (try-match parser input args 0))
+  ([parser input args position]
+   (parser input args position)))
+
 ; Constants
 
 (defn success []
@@ -30,7 +36,7 @@
 
 ^:rct/test
 (comment
-  ((literal "s") "s" nil 0) ;=> {:i "" :r "s" :p 1}
+  (try-match (literal "s") "s") ;=> {:i "" :r "s" :p 1}
   nil)
 
 (defn range [cs]
@@ -43,8 +49,8 @@
 
 ^:rct/test
 (comment
-  ((range "an") "k" nil 0) ;=> {:i "" :r "k" :p 1}
-  ((range "ae") "g" nil 0) ;=> nil
+  (try-match (range "an") "k") ;=> {:i "" :r "k" :p 1}
+  (try-match (range "ae") "g") ;=> nil
   nil)
 
 (defn regex [pattern]
@@ -57,7 +63,7 @@
 
 ^:rct/test
 (comment
-  ((regex #"\d+") "54g" nil 0) ;=> {:i "g" :r "54" :p 2}
+  (try-match (regex #"\d+") "54g") ;=> {:i "g" :r "54" :p 2}
   nil)
 
 (defn set [cs]
@@ -69,10 +75,10 @@
 
 ^:rct/test
 (comment
-  ((set "abc") "a" nil 0) ;=> {:i "" :r "a" :p 1}
-  ((set "abc") "b" nil 0) ;=> {:i "" :r "b" :p 1}
-  ((set "abc") "c" nil 0) ;=> {:i "" :r "c" :p 1}
-  ((set "abc") "d" nil 0) ;=> nil
+  (try-match (set "abc") "a") ;=> {:i "" :r "a" :p 1}
+  (try-match (set "abc") "b") ;=> {:i "" :r "b" :p 1}
+  (try-match (set "abc") "c") ;=> {:i "" :r "c" :p 1}
+  (try-match (set "abc") "d") ;=> nil
   nil)
 
 (defn take [n]
@@ -93,10 +99,10 @@
 
 ^:rct/test
 (comment
-  ((take 0) "abc" nil 0) ;=> {:i "abc" :p 0}
-  ((take 2) "abc" nil 0) ;=> {:i "c" :r "ab" :p 2}
-  ((take -1) "abc" nil 0) ;=> nil
-  ((take -1) "" nil 0) ;=> {:i "" :p 0}
+  (try-match (take 0) "abc") ;=> {:i "abc" :p 0}
+  (try-match (take 2) "abc") ;=> {:i "c" :r "ab" :p 2}
+  (try-match (take -1) "abc") ;=> nil
+  (try-match (take -1) "") ;=> {:i "" :p 0}
   nil)
 
 ; Combinators
@@ -109,8 +115,8 @@
 
 ^:rct/test
 (comment
-  ((not (literal "a")) "b" nil 0) ;=> {:i "b" :p 0}
-  ((not (literal "a")) "a" nil 0) ;=> nil
+  (try-match (not (literal "a")) "b") ;=> {:i "b" :p 0}
+  (try-match (not (literal "a")) "a") ;=> nil
   nil)
 
 (defn between [low high parser]
@@ -130,10 +136,10 @@
 
 ^:rct/test
 (comment
-  ((between 3 4 (literal "a")) "aa" nil 0) ;=> nil
-  ((between 3 4 (literal "a")) "aaa" nil 0) ;=> {:i "" :r "aaa" :p 3}
-  ((between 3 4 (literal "a")) "aaaa" nil 0) ;=> {:i "" :r "aaaa" :p 4}
-  ((between 3 4 (literal "a")) "aaaaa" nil 0) ;=> {:i "a" :r "aaaa" :p 4}
+  (try-match (between 3 4 (literal "a")) "aa") ;=> nil
+  (try-match (between 3 4 (literal "a")) "aaa") ;=> {:i "" :r "aaa" :p 3}
+  (try-match (between 3 4 (literal "a")) "aaaa") ;=> {:i "" :r "aaaa" :p 4}
+  (try-match (between 3 4 (literal "a")) "aaaaa") ;=> {:i "a" :r "aaaa" :p 4}
   nil)
 
 (defn at-least [n parser]
@@ -170,8 +176,8 @@
 
 ^:rct/test
 (comment
-  ((sequence (literal "a") (literal "b")) "abc" nil 0) ;=> {:i "c" :r "ab" :c () :p 2}
-  ((sequence (literal "a") (literal "b")) "abc" nil 5) ;=> {:i "c" :r "ab" :c () :p 7}
+  (try-match (sequence (literal "a") (literal "b")) "abc") ;=> {:i "c" :r "ab" :c () :p 2}
+  (try-match (sequence (literal "a") (literal "b")) "abc" nil 5) ;=> {:i "c" :r "ab" :c () :p 7}
   nil)
 
 (defn choice [& parsers]
@@ -180,7 +186,7 @@
 
 ^:rct/test
 (comment
-  ((choice (literal "a") (regex #"ba")) "bac" nil 0) ;=> {:i "c" :r "ba" :p 2}
+  (try-match (choice (literal "a") (regex #"ba")) "bac") ;=> {:i "c" :r "ba" :p 2}
   nil)
 
 (defn look
@@ -193,10 +199,10 @@
 
 ^:rct/test
 (comment
-  ((look 2) "a" nil 0) ;=> nil
-  ((look 2) "abc" nil 0) ;=> {:i "abc" :p 0}
-  ((look 2 (literal "cd")) "abcd" nil 0) ;=> {:i "abcd" :p 0}
-  ((look 2 (literal "ef")) "abcd" nil 0) ;=> nil
+  (try-match (look 2) "a") ;=> nil
+  (try-match (look 2) "abc") ;=> {:i "abc" :p 0}
+  (try-match (look 2 (literal "cd")) "abcd") ;=> {:i "abcd" :p 0}
+  (try-match (look 2 (literal "ef")) "abcd") ;=> nil
   nil)
 
 (defn given [pred parser]
@@ -206,8 +212,8 @@
 
 ^:rct/test
 (comment
-  ((given (literal "a") (literal "abc")) "abcd" nil 0) ;=> {:i "d" :r "abc" :p 3}
-  ((given (literal "b") (literal "abc")) "abcd" nil 0) ;=> nil
+  (try-match (given (literal "a") (literal "abc")) "abcd") ;=> {:i "d" :r "abc" :p 3}
+  (try-match (given (literal "b") (literal "abc")) "abcd") ;=> nil
   nil)
 
 (defn given-not [pred parser]
@@ -215,8 +221,8 @@
 
 ^:rct/test
 (comment
-  ((given-not (literal "a") (literal "abc")) "abcd" nil 0) ;=> nil
-  ((given-not (literal "b") (literal "abc")) "abcd" nil 0) ;=> {:i "d" :r "abc" :p 3}
+  (try-match (given-not (literal "a") (literal "abc")) "abcd") ;=> nil
+  (try-match (given-not (literal "b") (literal "abc")) "abcd") ;=> {:i "d" :r "abc" :p 3}
   nil)
 
 (defn to [parser]
@@ -233,8 +239,8 @@
 
 ^:rct/test
 (comment
-  ((to (literal "d")) "abcd" nil 0) ;=> {:i "d" :r "abc" :p 3}
-  ((to (literal "p")) "abcd" nil 0) ;=> nil
+  (try-match (to (literal "d")) "abcd") ;=> {:i "d" :r "abc" :p 3}
+  (try-match (to (literal "p")) "abcd") ;=> nil
   nil)
 
 (defn thru [parser]
@@ -249,8 +255,8 @@
 
 ^:rct/test
 (comment
-  ((thru (literal "d")) "abcde" nil 0) ;=> {:i "e" :r "abc" :p 4}
-  ((thru (literal "p")) "abcde" nil 0) ;=> nil
+  (try-match (thru (literal "d")) "abcde") ;=> {:i "e" :r "abc" :p 4}
+  (try-match (thru (literal "p")) "abcde") ;=> nil
   nil)
 
 (defn sub [window-parser parser]
@@ -263,7 +269,7 @@
 
 ^:rct/test
 (comment
-  ((sub (to (literal ";")) (any (choice (literal "a") (literal ";")))) "aaa;aaa" nil 0) ;=> {:i ";aaa" :r "aaa" :p 3}
+  (try-match (sub (to (literal ";")) (any (choice (literal "a") (literal ";")))) "aaa;aaa") ;=> {:i ";aaa" :r "aaa" :p 3}
   nil)
 
 ; Captures
@@ -280,10 +286,10 @@
 
 ^:rct/test
 (comment
-  ((capture (literal "a")) "abc" nil 0) ;=> {:i "bc" :r "a" :c ["a"] :p 1}
-  ((capture (literal "a") :x) "abc" nil 0) ;=> {:i "bc" :r "a" :c [{:x "a"}] :p 1}
-  ((sequence (literal "a") (capture (literal "b") :x) (literal "c")) "abc" nil 0) ;=> {:i "" :r "abc" :c [{:x "b"}] :p 3}
-  ((capture (sequence (literal "a") (literal "b"))) "abc" nil 0) ;=> {:i "c" :r "ab" :c ["ab"] :p 2}
+  (try-match (capture (literal "a")) "abc") ;=> {:i "bc" :r "a" :c ["a"] :p 1}
+  (try-match (capture (literal "a") :x) "abc") ;=> {:i "bc" :r "a" :c [{:x "a"}] :p 1}
+  (try-match (sequence (literal "a") (capture (literal "b") :x) (literal "c")) "abc") ;=> {:i "" :r "abc" :c [{:x "b"}] :p 3}
+  (try-match (capture (sequence (literal "a") (literal "b"))) "abc") ;=> {:i "c" :r "ab" :c ["ab"] :p 2}
   nil)
 
 (defn replace
@@ -296,7 +302,7 @@
 
 ^:rct/test
 (comment
-  ((replace (capture (regex "\\d+")) parse-long) "25a" nil 0) ;=> {:i "a" :r "25" :c [25] :p 2}
+  (try-match (replace (capture (regex "\\d+")) parse-long) "25a") ;=> {:i "a" :r "25" :c [25] :p 2}
   nil)
 
 (defn constant
@@ -309,8 +315,8 @@
 
 ^:rct/test
 (comment
-  ((constant "c") "b" nil 0) ;=> {:i "b" :r "c" :c ["c"] :p 0}
-  ((constant "c" :x) "b" nil 0) ;=> {:i "b" :r "c" :c [{:x "c"}] :p 0}
+  (try-match (constant "c") "b") ;=> {:i "b" :r "c" :c ["c"] :p 0}
+  (try-match (constant "c" :x) "b") ;=> {:i "b" :r "c" :c [{:x "c"}] :p 0}
   nil)
 
 (defn argument
@@ -325,8 +331,8 @@
 
 ^:rct/test
 (comment
-  ((argument 1) "abc" [:a :b :c] 0) ;=> {:i "abc" :r :b :c [:b] :p 0}
-  ((argument 1 :x) "abc" [:a :b :c] 0) ;=> {:i "abc" :r :b :c [{:x :b}] :p 0}
+  (try-match (argument 1) "abc" [:a :b :c] 0) ;=> {:i "abc" :r :b :c [:b] :p 0}
+  (try-match (argument 1 :x) "abc" [:a :b :c] 0) ;=> {:i "abc" :r :b :c [{:x :b}] :p 0}
   nil)
 
 (defn position
@@ -339,8 +345,8 @@
 
 ^:rct/test
 (comment
-  ((sequence (literal "a") (position)) "abc" nil 0) ;=> {:i "bc" :r "a" :c [1] :p 1}
-  ((sequence (literal "a") (position :pos)) "abc" nil 0) ;=> {:i "bc" :r "a" :c [{:pos 1}] :p 1}
+  (try-match (sequence (literal "a") (position)) "abc") ;=> {:i "bc" :r "a" :c [1] :p 1}
+  (try-match (sequence (literal "a") (position :pos)) "abc") ;=> {:i "bc" :r "a" :c [{:pos 1}] :p 1}
   nil)
 
 ; Matcher
