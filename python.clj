@@ -29,7 +29,7 @@
     ((m/and ?a (m/pred dot-dash?)) ?o)
     , (py/attr ?o (m/app un-dot-dash ?a))
     ('. ?o ?m . !args ...)
-    , (m/app special ((py/attr ?o ?m) . !args ...))
+    , (m/app special ((py/attr (m/app special ?o) ?m) . (m/app special !args) ...))
     ((m/and ?m (m/pred dot?)) ?o . !args ...)
     , (m/app special ((py/attr ?o (m/app un-dot ?m)) . !args ...))
     ('.. ?o (?m . !args ...))
@@ -55,6 +55,8 @@
   (special '(. a b c ^:** {:d e}))
   (special '(.-a b))
   (special '(.a b c d ^:** {:e f}))
+  (special '(. a b (.-c d)))
+  (special '(. (. a b) c))
   nil)
 
 (def ctx-load {:type :Load})
@@ -110,6 +112,8 @@
       ast))
 
 (comment
+  (clj->py-ast '(. a b c d ^:** {:e 1}))
+  (clj->py-ast '(. a b (.-c d)))
   (clj->py-ast '(.- (.- a b) c))
   (clj->py-ast '(. a b c d ^:** {:e 1}))
   (clj->py-ast '(.. a (b c d ^:** {:e 1})))
