@@ -9,3 +9,6 @@
 
 (defn find-uuid [s]
   (re-find uuid-pattern s))
+
+(defn find-uuids [s]
+  (re-seq uuid-pattern s))
