@@ -1,44 +1,52 @@
 (ns graphviz
   (:require [clojure.java.shell :as shell]))
 
+(defn append [sb & ss]
+  (doseq [s ss]
+    (.append sb s)))
+
 (defn append-attrs [sb attrs]
   (doseq [[k v] attrs
           :when (and (not= k :id) v)]
-    (doto sb
-      (.append " ")
-      (.append (name k))
-      (.append "=")
-      (.append (if (keyword? v)
-                 (name v)
-                 (pr-str v))))))
+    (append sb
+            " " (name k) "="
+            (if (keyword? v)
+              (name v)
+              (pr-str v)))))
 
-(defn graph [nodes edges]
+(defmulti node (fn [_ {t :type}] t))
+
+(defmethod node :default [sb {:keys [id attrs]}]
+  (doto sb
+    (append "  " (pr-str id) " [")
+    (append-attrs attrs)
+    (append "]\n")))
+
+(defmethod node :group [sb {:keys [rank nodes]}]
+  (append sb "  {\n")
+  (when rank
+    (append sb "  rank=" (name rank) "\n"))
+  (doseq [n nodes]
+    (node sb n))
+  (append sb "\n  }"))
+
+(defn graph [{:keys [attrs nodes edges]}]
   (let [sb (StringBuilder.)]
-    (doto sb
-      (.append "digraph {\n")
-      (.append "  graph [dpi=300]\n")
-      (.append "  rankdir=\"LR\"\n")
-      (.append "  node [shape=box style=filled fillcolor=white]\n"))
-    (doseq [{:keys [id attrs]} nodes
-            :when id]
+    (append sb "digraph {\n  graph [dpi=300]\n")
+    (doseq [[k v] attrs]
       (doto sb
-        (.append "  ")
-        (.append (pr-str id))
-        (.append " [")
-        (append-attrs attrs)
-        (.append "]\n")))
+        (append "  " (name k) " [")
+        (append-attrs v)
+        (append "]\n")))
+    (doseq [n nodes]
+      (node sb n))
     (doseq [[from to attrs] edges
             :when (and from to)]
       (doto sb
-        (.append "  ")
-        (.append (pr-str from))
-        (.append " -> ")
-        (.append (pr-str to))
-        (.append " [")
+        (append "  " (pr-str from) " -> " (pr-str to) " [")
         (append-attrs attrs)
-        (.append "]\n")))
-    (doto sb
-      (.append "}"))
+        (append "]\n")))
+    (append sb "}")
     (str sb)))
 
 (defn render-as-bytes [graph fmt]
