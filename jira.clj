@@ -1,5 +1,6 @@
 (ns jira
-  (:require [clojure.string :as str]))
+  (:require [clojure.string :as str]
+            http))
 
 (def host (System/getenv "JIRA_HOST"))
 (def username (System/getenv "JIRA_USERNAME"))
@@ -55,6 +56,17 @@
   (as-jira-request
     {:path (str "/issue/" ticket "/transitions")
      :method :get}))
+
+(defn transition! [ticket status]
+  (let [[{:keys [id]}] (-> (ticket-transitions ticket)
+                           http/request
+                           :transitions
+                           (->> (filter (comp #{status} :name))))]
+    (-> (as-jira-request
+          {:path (str "/issue/" ticket "/transitions")
+           :method :post
+           :body {:transition {:id id}}})
+        http/request)))
 
 (defn new-ticket [{:keys [project summary description issuetype components assignee] :as fields}]
   (as-jira-request
