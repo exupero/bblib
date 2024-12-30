@@ -6,12 +6,6 @@
 (def username (System/getenv "JIRA_USERNAME"))
 (def token (System/getenv "JIRA_TOKEN"))
 
-(def user-name->account-id
-  {})
-
-(def squad-name->id
-  {})
-
 (def custom-fields
   {})
 
@@ -68,7 +62,13 @@
            :body {:transition {:id id}}})
         http/request)))
 
-(defn new-ticket [{:keys [project summary description issuetype components assignee] :as fields}]
+(defn assign [ticket account-id]
+  (as-jira-request
+    {:path (str "/issue/ticket/" ticket "/assignee")
+     :method :post
+     :body {:accountId account-id}}))
+
+(defn new-ticket [{:keys [project summary description issuetype components assignee-account-id] :as fields}]
   (as-jira-request
     {:path (str "/issue/")
      :method :post
@@ -80,7 +80,7 @@
                                   :version 1
                                   :content [{:type "paragraph", :content [{:type "text", :text description}]}]}
                     :components (map #(do {:name %}) components)
-                    :assignee {:id (user-name->account-id assignee)}}
+                    :assignee {:id assignee-account-id}}
                    (into {}
                          (keep (fn [[k f]]
                                  (when-let [v (fields k)]
