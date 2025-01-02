@@ -62,11 +62,11 @@
            :body {:transition {:id id}}})
         http/request)))
 
-(defn assign [ticket account-id]
+(defn assign [ticket assignee-account-id]
   (as-jira-request
-    {:path (str "/issue/ticket/" ticket "/assignee")
-     :method :post
-     :body {:accountId account-id}}))
+    {:path (str "/issue/" ticket)
+     :method :put
+     :body {:fields {:assignee {:id assignee-account-id}}}}))
 
 (defn new-ticket [{:keys [project summary description issuetype components assignee-account-id] :as fields}]
   (as-jira-request
