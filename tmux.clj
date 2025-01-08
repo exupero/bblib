@@ -32,8 +32,8 @@
 
 (defn split-horizontal
   ([] (tmux :split-window :h))
-  ([target]
-   (tmux :split-window :h :t target)))
+  ([target & args]
+   (apply tmux :split-window :h :t target args)))
 
 (defn send [target & ss]
   (apply tmux :send :t target ss))
