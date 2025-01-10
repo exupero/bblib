@@ -7,10 +7,12 @@
 (deps/add-deps '{:deps {mvxcvi/puget {:mvn/version "1.3.4"}}})
 (require '[puget.printer :as puget])
 
-(defn print-table [rows]
+(defn table [rows]
   (-> (shell/sh "ramda" "-o" "table" "--compact" :in (json/generate-string rows))
-      :out
-      println))
+      :out))
+
+(defn print-table [rows]
+  (println (table rows)))
 
 (defn tty? []
   (-> (shell/sh "test" "-t" "1") :exit zero?))
