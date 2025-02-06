@@ -112,4 +112,8 @@
   (binding [*command-line-args* ["a" "b"]]
     (bind-opts [[]
                 [& urls]]
-      (println urls))))
+      (println urls)))
+
+  (macroexpand-1 '(bind-opts [[[-i --input :string ""]]
+                              []]
+                    input)))
