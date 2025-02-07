@@ -1,5 +1,6 @@
 (ns time
-  (:require [babashka.deps :as deps]))
+  (:require [clojure.string :as str]
+            [babashka.deps :as deps]))
 (deps/add-deps '{:deps {com.widdindustries/cljc.java-time {:mvn/version "0.1.21"}}})
 (require '[cljc.java-time.format.date-time-formatter :as dtf]
          '[cljc.java-time.offset-date-time :as odt]
@@ -46,12 +47,12 @@
                  (java.time.ZoneId/systemDefault)))
 
 (defn nanos->iso [nanos]
-  (.format
-    (-> (dtf/of-pattern "yyyy-MM-dd'T'hh:mm:SS.SSSSSSSSSZ")
-        (dtf/with-zone (jz/of "UTC")))
-    (instant/of-epoch-second
-      (/ nanos 1000000000)
-      (mod nanos 1000000000))))
+  (-> (dtf/of-pattern "yyyy-MM-dd'T'hh:mm:SS.SSSSSSSSSZ")
+      (dtf/with-zone (jz/of "UTC"))
+      (.format (instant/of-epoch-second
+                 (/ nanos 1000000000)
+                 (mod nanos 1000000000)))
+      (str/replace #"\+0000$" "Z")))
 
 (defn as-nanos [t]
   (let [inst (.toInstant t)]
