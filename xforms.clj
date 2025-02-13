@@ -13,3 +13,15 @@
              (do (vswap! buffer conj item) res))
            (do (vreset! buffer [item]) res)))))))
 
+(def take-until (comp take-while complement))
+(def drop-until (comp drop-while complement))
+
+(defn take-to [pred]
+  (fn [rf]
+    (fn
+      ([] (rf))
+      ([res] (rf res))
+      ([res item]
+       (if (pred item)
+         (reduced (rf res item))
+         (rf res item))))))

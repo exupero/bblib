@@ -36,10 +36,10 @@
    (apply tmux :split-window :h :t target args)))
 
 (defn send [target & ss]
-  (apply tmux :send :t target ss))
+  (apply tmux :send :t (name target) (map name ss)))
 
 (defn submit [target & ss]
-  (apply tmux :send :t target (concat ss ["C-m"])))
+  (apply send target (concat ss ["C-m"])))
 
 (defn new-session [nm dir]
   (tmux :new-session :d :s (name nm) :c (str dir)))
