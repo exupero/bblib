@@ -109,11 +109,7 @@
     (let [opts (babashka.cli/parse-opts *command-line-args* {:spec {}, :coerce {:urls []} :args->opts [:urls :urls]})]
       (prn opts)))
 
-  (binding [*command-line-args* ["a" "b"]]
+  (binding [*command-line-args* ["-a" "-b"]]
     (bind-opts [[]
                 [& urls]]
-      (println urls)))
-
-  (macroexpand-1 '(bind-opts [[[-i --input :string ""]]
-                              []]
-                    input)))
+      (println urls))))

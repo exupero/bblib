@@ -47,7 +47,7 @@
                  (java.time.ZoneId/systemDefault)))
 
 (defn nanos->iso [nanos]
-  (-> (dtf/of-pattern "yyyy-MM-dd'T'hh:mm:SS.SSSSSSSSSZ")
+  (-> (dtf/of-pattern "yyyy-MM-dd'T'hh:mm:ss.SSSSSSSSSZ")
       (dtf/with-zone (jz/of "UTC"))
       (.format (instant/of-epoch-second
                  (/ nanos 1000000000)
