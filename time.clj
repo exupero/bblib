@@ -47,12 +47,11 @@
                  (java.time.ZoneId/systemDefault)))
 
 (defn nanos->iso [nanos]
-  (-> (dtf/of-pattern "yyyy-MM-dd'T'hh:mm:ss.SSSSSSSSSZ")
-      (dtf/with-zone (jz/of "UTC"))
-      (.format (instant/of-epoch-second
-                 (/ nanos 1000000000)
-                 (mod nanos 1000000000)))
-      (str/replace #"\+0000$" "Z")))
+  (let [formatter (-> (dtf/of-pattern "yyyy-MM-dd'T'HH:mm:ss.SSSSSSSSSZ")
+                      (dtf/with-zone (jz/of "UTC")))
+        inst (instant/of-epoch-second (/ nanos 1000000000) (mod nanos 1000000000))]
+    (-> #p (.format formatter #p inst)
+        (str/replace #"\+0000$" "Z"))))
 
 (defn as-nanos [t]
   (let [inst (.toInstant t)]
