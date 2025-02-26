@@ -6,9 +6,6 @@
 (def username (System/getenv "JIRA_USERNAME"))
 (def token (System/getenv "JIRA_TOKEN"))
 
-(def custom-fields
-  {})
-
 (def normalize-project-key (comp str/upper-case name))
 
 (defn as-jira-request [{:keys [path] :as params}]
@@ -28,7 +25,7 @@
 (defn ticket
   ([ticket-key]
    (as-jira-request
-     {:path (str "/issue/" ticket-key)
+     {:path (str "/issue/" (name ticket-key))
       :method :get}))
   ([project n]
    (ticket (normalize-project-key (str project \- n)))))
@@ -68,24 +65,18 @@
      :method :put
      :body {:fields {:assignee {:id assignee-account-id}}}}))
 
-(defn new-ticket [{:keys [project summary description issuetype components assignee-account-id] :as fields}]
+(defn new-ticket [{:keys [project summary description issuetype components] :as fields}]
   (as-jira-request
     {:path (str "/issue/")
      :method :post
-     :body {:fields
-            (merge {:project {:key (normalize-project-key project)}
-                    :issuetype {:name (str/capitalize (name issuetype))}
-                    :summary summary
-                    :description {:type :doc
-                                  :version 1
-                                  :content [{:type "paragraph", :content [{:type "text", :text description}]}]}
-                    :components (map #(do {:name %}) components)
-                    :assignee {:id assignee-account-id}}
-                   (into {}
-                         (keep (fn [[k f]]
-                                 (when-let [v (fields k)]
-                                   (f v))))
-                         custom-fields))}}))
+     :body {:fields (merge fields
+                           {:project {:key (normalize-project-key project)}
+                            :issuetype {:name (str/capitalize (name issuetype))}
+                            :summary summary
+                            :description {:type :doc
+                                          :version 1
+                                          :content [{:type "paragraph", :content [{:type "text", :text description}]}]}
+                            :components (map #(do {:name %}) components)})}}))
 
 (defn link [from-ticket to-ticket type]
   (as-jira-request
