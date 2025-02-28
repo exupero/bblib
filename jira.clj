@@ -73,9 +73,7 @@
                            {:project {:key (normalize-project-key project)}
                             :issuetype {:name (str/capitalize (name issuetype))}
                             :summary summary
-                            :description {:type :doc
-                                          :version 1
-                                          :content [{:type "paragraph", :content [{:type "text", :text description}]}]}
+                            :description description
                             :components (map #(do {:name %}) components)})}}))
 
 (defn link [from-ticket to-ticket type]
