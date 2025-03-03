@@ -59,11 +59,16 @@
            :body {:transition {:id id}}})
         http/request)))
 
-(defn assign [ticket assignee-account-id]
+(defn ticket-update [ticket-id]
   (as-jira-request
-    {:path (str "/issue/" ticket)
-     :method :put
-     :body {:fields {:assignee {:id assignee-account-id}}}}))
+    {:path (str "/issue/" ticket-id)
+     :method :put}))
+
+(defn with-assignee [ticket assignee-account-id]
+  (assoc-in ticket [:body :fields :assignee :id] assignee-account-id))
+
+(defn with-versions [ticket version-id]
+  (assoc-in ticket [:body :fields :versions :id] version-id))
 
 (defn new-ticket [{:keys [project summary description issuetype components] :as fields}]
   (as-jira-request
@@ -88,3 +93,8 @@
   (cond-> []
     outwardIssue (conj (outwardIssue :key))
     inwardIssue (conj (inwardIssue :key))))
+
+(defn versions [project]
+  (as-jira-request
+    {:path (str "/project/" (normalize-project-key project) "/versions")
+     :method :get}))
