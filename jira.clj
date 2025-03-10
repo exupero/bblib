@@ -61,7 +61,7 @@
 
 (defn ticket-update [ticket-id]
   (as-jira-request
-    {:path (str "/issue/" ticket-id)
+    {:path (str "/issue/" (normalize-project-key ticket-id))
      :method :put}))
 
 (defn with-assignee [ticket assignee-account-id]
