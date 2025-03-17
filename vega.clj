@@ -76,3 +76,6 @@
       (update :layer (fn [layers]
                        (map #(assoc-in % [:encoding :color] {:field k :type :nominal})
                             layers)))))
+
+(defn x-order [plot order]
+   (assoc-in plot [:encoding :x :sort] order))
