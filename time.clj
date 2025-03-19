@@ -50,7 +50,7 @@
   (let [formatter (-> (dtf/of-pattern "yyyy-MM-dd'T'HH:mm:ss.SSSSSSSSSZ")
                       (dtf/with-zone (jz/of "UTC")))
         inst (instant/of-epoch-second (/ nanos 1000000000) (mod nanos 1000000000))]
-    (-> #p (.format formatter #p inst)
+    (-> (.format formatter inst)
         (str/replace #"\+0000$" "Z"))))
 
 (defn as-nanos [t]
