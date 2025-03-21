@@ -26,9 +26,11 @@
   (apply p/shell opts (command cmd args)))
 
 (defn tmux [cmd & args]
-  (let [{:keys [out]} (apply tmux* {:out :string} cmd args)]
-    (when-not (str/blank? out)
-      (str/trim out))))
+  (let [{:keys [exit out err]} (apply tmux* {:out :string} cmd args)]
+    (if (zero? exit)
+      (when-not (str/blank? out)
+        (str/trim out))
+      (throw (Exception. err)))))
 
 (defn split-horizontal
   ([] (tmux :split-window :h))
