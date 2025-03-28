@@ -35,8 +35,8 @@
   (run "git" "ls-files" "--full-name" relative-path))
 
 (defn-with-dir changes? []
-  (let [{:keys [exit]} (shell/sh "git" "diff" "--quiet")]
-    (pos? exit)))
+  (let [{:keys [out]} (shell/sh "git" "status" "-s")]
+    (not (str/blank? out))))
 
 (defn-with-dir status []
   (run "git" "status" "--short"))
