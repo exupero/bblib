@@ -45,3 +45,18 @@
 (defn update-file [path f & args]
   (let [content (slurp path)]
     (spit path (apply f content args))))
+
+(defn url-encode [s]
+  (-> s
+    (java.net.URLEncoder/encode "UTF-8")
+    (str/replace "+" "%20")))
+
+(defn format-query-params [kvs]
+  (transduce
+    (comp
+      (map (fn [[k v]]
+             (if (true? v)
+               (name k)
+               (str (name k) "=" (url-encode (name v))))))
+      (interpose "&"))
+    str kvs))

@@ -1,6 +1,7 @@
 (ns obsidian
   (:require [clojure.string :as str]
-            [clj-yaml.core :as yaml]))
+            [clj-yaml.core :as yaml]
+            text))
 
 (defn frontmatter [s]
   (when (= "---" (subs s 0 3))
@@ -30,3 +31,9 @@
         (interpose "\n"))
       str (str/split-lines s))
     s))
+
+(defn uri [kvs]
+  (str "obsidian://new?" (text/format-query-params kvs)))
+
+(defn advanced-uri [kvs]
+  (str "obsidian://adv-uri?" (text/format-query-params kvs)))
