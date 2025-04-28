@@ -67,8 +67,8 @@
 (defn with-assignee [ticket assignee-account-id]
   (assoc-in ticket [:body :fields :assignee :id] assignee-account-id))
 
-(defn with-versions [ticket version-id]
-  (assoc-in ticket [:body :fields :versions :id] version-id))
+(defn with-version [ticket version-id]
+  (assoc-in ticket [:body :fields :versions] [{:id version-id}]))
 
 (defn new-ticket [{:keys [project summary description issuetype components] :as fields}]
   (as-jira-request
