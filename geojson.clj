@@ -7,6 +7,7 @@
 
 (defn line-string [coords]
   {:type "Feature"
+   :properties {}
    :geometry {:type "LineString"
               :coordinates coords}})
 
