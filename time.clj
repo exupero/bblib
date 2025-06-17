@@ -17,11 +17,14 @@
 (def plus-minutes odt/plus-minutes)
 (def minus-minutes odt/minus-minutes)
 
-(defn isoformat-datetime [t]
-  (.format dtf/iso-offset-date-time t))
+(defn format-as [t pattern]
+  (.format (dtf/of-pattern pattern) t))
 
 (defn isoformat-today []
-  (.format (now) (dtf/of-pattern "yyyy-MM-dd")))
+  (format-as (now) "yyyy-MM-dd"))
+
+(defn isoformat-datetime [t]
+  (.format t dtf/iso-offset-date-time))
 
 (defn isoformat-date [d]
   (.format (java.text.SimpleDateFormat. "yyyy-MM-dd'T'HH:mm:ss.SSSXXX") d))
