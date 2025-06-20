@@ -50,14 +50,14 @@
 
 (defn transition! [ticket status]
   (let [[{:keys [id]}] (-> (ticket-transitions ticket)
-                           http/request
+                           http/request!
                            :transitions
                            (->> (filter (comp #{status} :name))))]
     (-> (as-jira-request
           {:path (str "/issue/" ticket "/transitions")
            :method :post
            :body {:transition {:id id}}})
-        http/request)))
+        http/request!)))
 
 (defn ticket-update [ticket-id]
   (as-jira-request
