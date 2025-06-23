@@ -123,7 +123,7 @@
 (defn ensure-not-zoomed [target]
   ; https://stackoverflow.com/a/38780608
   (when (window-zoomed? target)
-    (tmux-lines :resize-pane :t (doto target prn) :Z)))
+    (tmux :resize-pane :t target :Z)))
 
 (defn filter [form]
   (walk/postwalk
