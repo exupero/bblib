@@ -3,10 +3,12 @@
             [cheshire.core :as json]
             http))
 
-(defn query [config q]
-  (-> config
-      (assoc :body {:query q})
-      http/request!))
+(defn query
+  ([config q] (query config q nil))
+  ([config q variables]
+   (-> config
+       (assoc :body {:query q :variables variables})
+       http/request!)))
 
 (defn ->query [edn-data]
   (letfn [(format-value [v]
