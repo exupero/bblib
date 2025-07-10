@@ -31,3 +31,11 @@
         (interpose "\n"))
       str (str/split-lines s))
     s))
+
+(defn update-frontmatter [file f & args]
+  (let [[fm content] (frontmatter+content (slurp file))]
+    (spit file
+          (str "---\n"
+               (yaml/generate-string (apply f fm args) :dumper-options {:flow-style :block})
+               "---\n"
+               content))))

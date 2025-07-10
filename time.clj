@@ -3,6 +3,7 @@
             [babashka.deps :as deps]))
 (deps/add-deps '{:deps {com.widdindustries/cljc.java-time {:mvn/version "0.1.21"}}})
 (require '[cljc.java-time.format.date-time-formatter :as dtf]
+         '[cljc.java-time.local-date-time :as ldt]
          '[cljc.java-time.offset-date-time :as odt]
          '[cljc.java-time.local-date :as ld]
          '[cljc.java-time.zone-id :as jz]
@@ -73,3 +74,18 @@
 
 (defn span [dates]
   (->> dates sort date-extent (apply d/between)))
+
+(defn time-to-nearest [t p]
+  (let [h (ldt/get-hour t)
+        m (-> t
+              ldt/get-minute
+              (/ p)
+              float
+              Math/round
+              (* p))
+        [h m] (if (< 59 m)
+                [(inc h) (mod m 60)]
+                [h m])]
+    (-> t
+        (ldt/with-hour h)
+        (ldt/with-minute m))))
