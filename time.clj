@@ -50,6 +50,16 @@
   (.atStartOfDay (ld/parse d)
                  (java.time.ZoneId/systemDefault)))
 
+(defn parse-time [hhmm]
+  (let [[_ h m] (re-matches #"(\d{1,2})(\d{2})" hhmm)
+        h (Integer/parseInt h)
+        m (Integer/parseInt m)]
+    (-> (now)
+        (.withHour h)
+        (.withMinute m)
+        (.withSecond 0)
+        (.withNano 0))))
+
 (defn nanos->iso [nanos]
   (let [formatter (-> (dtf/of-pattern "yyyy-MM-dd'T'HH:mm:ss.SSSSSSSSSZ")
                       (dtf/with-zone (jz/of "UTC")))
@@ -76,9 +86,9 @@
   (->> dates sort date-extent (apply d/between)))
 
 (defn time-to-nearest [t p]
-  (let [h (ldt/get-hour t)
+  (let [h (odt/get-hour t)
         m (-> t
-              ldt/get-minute
+              odt/get-minute
               (/ p)
               float
               Math/round
@@ -87,5 +97,8 @@
                 [(inc h) (mod m 60)]
                 [h m])]
     (-> t
-        (ldt/with-hour h)
-        (ldt/with-minute m))))
+        (odt/with-hour h)
+        (odt/with-minute m))))
+
+(defn ->epoch-seconds [t]
+  (.getEpochSecond (.toInstant t)))
