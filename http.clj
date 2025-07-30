@@ -19,7 +19,7 @@
         v (if (coll? vs) vs [vs])]
     [k v]))
 
-(defn with-config [{:keys [path] :as req} {:keys [host creds] :or {creds identity}}]
+(defn configure [{:keys [path] :as req} {:keys [host creds] :or {creds identity}}]
   (cond-> req
     path
     , (-> (assoc :url (str host path))
@@ -124,7 +124,7 @@
          log-curl? (= "1" (System/getenv "LOG_CURL"))]
      (-> spec
          (assoc :throw false)
-         (with-config (or config (http/config)))
+         (configure (or config (http/config)))
          (cond->
            as-curl?       (format-as-curl)
            (not as-curl?) (cond->
