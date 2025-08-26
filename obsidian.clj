@@ -1,5 +1,6 @@
 (ns obsidian
-  (:require [babashka.process :as p]
+  (:require [clojure.string :as str]
+            [babashka.process :as p]
             text))
 
 (defn open! [uri]
@@ -16,3 +17,11 @@
 
 (defn advanced-uri! [kvs]
   (open! (advanced-uri kvs)))
+
+(defn open-tab [vault path]
+  (advanced-uri! {:vault vault :filepath path :openmode "true"}))
+
+(defn sanitize [s]
+  (-> s
+      (str/replace #"[#^\[\]|:/\\.]+" "-")
+      str/trim))
