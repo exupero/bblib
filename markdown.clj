@@ -42,6 +42,9 @@
       str (str/split-lines s))
     s))
 
+(defn content [file]
+  (remove-frontmatter (slurp file)))
+
 (defn update-frontmatter-text [file f & args]
   (text/update-file file
     (fn [content]
