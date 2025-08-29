@@ -44,7 +44,8 @@
 
 (defn update-file [path f & args]
   (let [content (slurp path)]
-    (spit path (apply f content args))))
+    (some->> (apply f content args)
+             (spit path))))
 
 (defn url-encode [s]
   (-> s
