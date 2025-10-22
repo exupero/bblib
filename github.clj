@@ -13,9 +13,9 @@
                "Authorization" (str "Bearer " token)
                "X-GitHub-Api-Version" "2022-11-28"})))
 
-(defn pull-request [org repo number]
+(defn pull-request [owner repo number]
   (configure-request
-    {:path (str "/repos/" (name org) "/" (name repo) "/pulls/" number)
+    {:path (str "/repos/" (name owner) "/" (name repo) "/pulls/" number)
      :method :get}))
 
 (defn search [q]
@@ -23,3 +23,21 @@
     {:path "/search/issues"
      :method :get
      :query-params {:q q}}))
+
+(defn add-labels [owner repo number labels]
+  (configure-request
+    {:path (str "/repos/" (name owner) "/" (name repo) "/issues/" number "/labels")
+     :method :post
+     :body {:labels labels}}))
+
+(defn new-pull-request [owner repo params]
+  (configure-request
+    {:path (str "/repos/" (name owner) "/" (name repo) "/pulls")
+     :method :post
+     :body params}))
+
+(defn request-reviewers [owner repo number reviewers]
+  (configure-request
+    {:path (str "/repos/" (name owner) "/" (name repo) "/pulls/" number "/requested_reviewers")
+     :method :post
+     :body reviewers}))
