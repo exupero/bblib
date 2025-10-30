@@ -25,3 +25,8 @@
   (-> s
       (str/replace #"[#^\[\]|:/\\.]+" "-")
       str/trim))
+
+(defn create-and-open! [absolute-path vault vault-path content]
+  (spit absolute-path content)
+  (Thread/sleep 500) ; wait for file to be written
+  (open-tab vault vault-path))

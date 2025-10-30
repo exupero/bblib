@@ -3,7 +3,8 @@
   (:require [clojure.edn :as edn]
             [clojure.java.io :as io]
             clojure.pprint
-            [clojure.string :as str]))
+            [clojure.string :as str]
+            [clj-yaml.core :as yaml]))
 
 (def roots (map io/file (str/split (System/getenv "CLJ_CONFIGS_PATH") #":")))
 
@@ -38,6 +39,10 @@
 
 (defn read-map [nm]
   (read-as nm "{%s}"))
+
+(defn read-yaml [nm]
+  (yaml/parse-string
+    (content (str (name nm) ".yaml"))))
 
 (defn write! [nm value]
   (->> value
