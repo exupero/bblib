@@ -13,6 +13,10 @@
                "Authorization" (str "Bearer " token)
                "X-GitHub-Api-Version" "2022-11-28"})))
 
+(defn parse-org+repo+number [url]
+  (let [[_ org repo number] (re-find #"/([^/]+)/([^/]+)/pull/(\d+)" url)]
+    [org repo number]))
+
 (defn pull-request [owner repo number]
   (configure-request
     {:path (str "/repos/" (name owner) "/" (name repo) "/pulls/" number)
