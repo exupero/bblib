@@ -39,3 +39,10 @@
       :body (cond-> {:channel channel-id
                      :text text
                      :thread_ts thread-ts})})))
+
+(defn permalink [channel-id message-ts]
+  (configure-request
+    {:path "/chat.getPermalink"
+     :method :get
+     :query-params {:channel channel-id
+                    :message_ts message-ts}}))
