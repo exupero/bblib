@@ -1,4 +1,4 @@
-(ns python
+(ns python.gen
   {:clj-kondo/ignore [:unresolved-symbol]}
   (:require [clojure.string :as str]
             [babashka.deps :as deps]
