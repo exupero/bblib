@@ -2,15 +2,19 @@
   (:require [clojure.java.io :as io]
             [babashka.process :as p]))
 
+; Has to be done at namespace level, not in function, otherwise *file* refers
+; to the script rather than this file
+(def dir (.getParent (io/file *file*)))
+
 (defn run-chunks [opts chunks]
   (let [opts (merge {:in :stream :out :stream :err :stream} opts)
-        {:keys [in out err] :as proc} (p/process opts "python" "-iqu")
+        {:keys [in out err] :as proc} (p/process opts "python" (io/file dir "exec.py"))
         in (io/writer in)
         out (io/reader out)
         err (io/reader err)]
     (doseq [code chunks]
-      (.write in code)
-      (.write in "\n\n")
+      (.write in (pr-str code))
+      (.write in "\n")
       (.flush in))
     (.close in)
     (let [{:keys [exit]} @proc]
