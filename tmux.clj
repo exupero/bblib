@@ -71,8 +71,16 @@
   (-> (tmux* {:err nil, :continue true} :has-session :t t)
       :exit zero?))
 
+(defn display-message [target fmt & args]
+  (str/trim (apply tmux :display-message
+                   (cond-> []
+                     target (conj :t (name target))
+                     (seq args) (into args)
+                     ; has to come last?
+                     true (conj :p fmt)))))
+
 (defn session-name []
-  (str/trim (tmux :display-message :p "#{session_name}")))
+  (display-message nil "#{session_name}"))
 
 (defn tmux-lines [cmd & args]
   (some-> (apply tmux cmd args) str/trim str/split-lines))
