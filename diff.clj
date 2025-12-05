@@ -20,6 +20,9 @@
                          :lines lines})))
                lines)}))
 
+(defn parse [diff]
+  (map parse-file (files diff)))
+
 (defn unparse-file [{:keys [header chunks]}]
   (str (str/join "\n" header) "\n"
        (str/join "\n" (map (fn [{:keys [header lines]}]
