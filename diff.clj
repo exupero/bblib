@@ -10,8 +10,9 @@
     (str/split-lines diff)))
 
 (defn parse-file [diff]
-  (let [[header index a b & lines] (str/split-lines diff)]
-    {:header [header index a b]
+  (let [[header lines] (->> (str/split-lines diff)
+                            (split-with (complement (partial re-find #"^@@"))))]
+    {:header header
      :chunks (sequence
                (comp
                  (xforms/split-by (partial re-find #"^@@"))
