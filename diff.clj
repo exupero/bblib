@@ -30,6 +30,9 @@
                              (str header "\n" (str/join "\n" lines)))
                            chunks))))
 
+(defn unparse [files]
+  (str/join "\n" (map unparse-file files)))
+
 (defn original [lines]
   (->> lines
        (filter #(re-find #"^[ -]" %))
