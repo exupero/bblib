@@ -45,3 +45,9 @@
     {:path (str "/repos/" (name owner) "/" (name repo) "/pulls/" number "/requested_reviewers")
      :method :post
      :body reviewers}))
+
+(defn review [owner repo number review]
+  (configure-request
+    {:path (str "/repos/" (name owner) "/" (name repo) "/pulls/" number "/reviews")
+     :method :get
+     :body review}))
