@@ -22,9 +22,21 @@
     {:path (str "/repos/" (name owner) "/" (name repo) "/pulls/" number)
      :method :get}))
 
-(defn search [q]
+(defn search-code [q]
+  (configure-request
+    {:path "/search/code"
+     :method :get
+     :query-params {:q q}}))
+
+(defn search-issues [q]
   (configure-request
     {:path "/search/issues"
+     :method :get
+     :query-params {:q q}}))
+
+(defn search-repos [q]
+  (configure-request
+    {:path "/search/repositories"
      :method :get
      :query-params {:q q}}))
 
