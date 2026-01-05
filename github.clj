@@ -40,7 +40,7 @@
      :method :get
      :query-params {:q q}}))
 
-(defn add-labels [owner repo number labels]
+(defn new-labels [owner repo number labels]
   (configure-request
     {:path (str "/repos/" (name owner) "/" (name repo) "/issues/" number "/labels")
      :method :post
@@ -63,3 +63,9 @@
     {:path (str "/repos/" (name owner) "/" (name repo) "/pulls/" number "/reviews")
      :method :post
      :body review}))
+
+(defn new-comment [owner repo number body]
+  (configure-request
+    {:path (str "/repos/" (name owner) "/" (name repo) "/issues/" number "/comments")
+     :method :post
+     :body {:body body}}))
