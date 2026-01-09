@@ -1,9 +1,13 @@
 (ns github
-  (:require config
-            http))
+  (:require [clojure.string :as str]))
 
 (def host "https://api.github.com")
 (def token (System/getenv "GITHUB_TOKEN"))
+
+(defn owner+repo [repo]
+  (if (keyword? repo)
+    [(namespace repo) (name repo)]
+    (str/split repo #"/" 2)))
 
 (defn configure-request [req]
   (-> req
@@ -40,32 +44,52 @@
      :method :get
      :query-params {:q q}}))
 
-(defn new-labels [owner repo number labels]
-  (configure-request
-    {:path (str "/repos/" (name owner) "/" (name repo) "/issues/" number "/labels")
-     :method :post
-     :body {:labels labels}}))
+(defn new-labels
+  ([repo number labels]
+   (let [[owner repo] (owner+repo repo)]
+     (new-labels owner repo number labels)))
+  ([owner repo number labels]
+   (configure-request
+     {:path (str "/repos/" (name owner) "/" (name repo) "/issues/" number "/labels")
+      :method :post
+      :body {:labels labels}})))
 
-(defn new-pull-request [owner repo params]
-  (configure-request
-    {:path (str "/repos/" (name owner) "/" (name repo) "/pulls")
-     :method :post
-     :body params}))
+(defn new-pull-request
+  ([repo params]
+   (let [[owner repo] (owner+repo repo)]
+     (new-pull-request owner repo params)))
+  ([owner repo params]
+   (configure-request
+     {:path (str "/repos/" (name owner) "/" (name repo) "/pulls")
+      :method :post
+      :body params})))
 
-(defn request-reviewers [owner repo number reviewers]
-  (configure-request
-    {:path (str "/repos/" (name owner) "/" (name repo) "/pulls/" number "/requested_reviewers")
-     :method :post
-     :body reviewers}))
+(defn request-reviewers
+  ([repo number reviewers]
+   (let [[owner repo] (owner+repo repo)]
+     (request-reviewers owner repo number reviewers)))
+  ([owner repo number reviewers]
+   (configure-request
+     {:path (str "/repos/" (name owner) "/" (name repo) "/pulls/" number "/requested_reviewers")
+      :method :post
+      :body reviewers})))
 
-(defn new-review [owner repo number review]
-  (configure-request
-    {:path (str "/repos/" (name owner) "/" (name repo) "/pulls/" number "/reviews")
-     :method :post
-     :body review}))
+(defn new-review
+  ([repo number review]
+   (let [[owner repo] (owner+repo repo)]
+     (new-review owner repo number review)))
+  ([owner repo number review]
+   (configure-request
+     {:path (str "/repos/" (name owner) "/" (name repo) "/pulls/" number "/reviews")
+      :method :post
+      :body review})))
 
-(defn new-comment [owner repo number body]
-  (configure-request
-    {:path (str "/repos/" (name owner) "/" (name repo) "/issues/" number "/comments")
-     :method :post
-     :body {:body body}}))
+(defn new-comment
+  ([repo number body]
+   (let [[owner repo] (owner+repo repo)]
+     (new-comment owner repo number body)))
+  ([owner repo number body]
+   (configure-request
+     {:path (str "/repos/" (name owner) "/" (name repo) "/issues/" number "/comments")
+      :method :post
+      :body {:body body}})))
