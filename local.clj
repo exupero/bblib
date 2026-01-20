@@ -19,7 +19,7 @@
   (apply file (System/getenv "HOME") path-parts))
 
 (defn code [& path-parts]
-  (apply file (System/getenv "CODE_PATH") path-parts))
+  (apply file (System/getenv "CODE") path-parts))
 
 (defn dotfiles [& path-parts]
   (apply code "dotfiles" path-parts))
