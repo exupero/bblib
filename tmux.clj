@@ -150,3 +150,9 @@
         :else
         , node))
     form))
+
+(defn location []
+  (display-message nil "#{session_name}:#{window_index}.#{pane_index}"))
+
+(defn active? []
+  (boolean (System/getenv "TMUX")))

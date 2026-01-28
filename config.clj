@@ -50,6 +50,12 @@
        with-out-str
        (spit (path nm))))
 
+(defn write-list! [nm values]
+  (spit (find-file (edn-name nm))
+        (with-out-str
+          (doseq [v values]
+            (prn v)))))
+
 (defn write-map! [nm m]
   (spit (find-file (edn-name nm))
         (with-out-str
