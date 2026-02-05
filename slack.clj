@@ -29,16 +29,23 @@
                      :limit 100
                      :oldest oldest}})))
 
+(defn get-message [channel-id message-ts]
+  (configure-request
+    {:path "/conversations.replies"
+     :method :get
+     :query-params {:channel channel-id
+                    :ts message-ts}}))
+
 (defn post-message
-  ([channel-id text]
-   (post-message channel-id text nil))
-  ([channel-id text thread-ts]
+  ([channel-id payload]
+   (post-message channel-id payload nil))
+  ([channel-id payload thread-ts]
    (configure-request
      {:path "/chat.postMessage"
       :method :post
-      :body (cond-> {:channel channel-id
-                     :text text
-                     :thread_ts thread-ts})})))
+      :body (merge {:channel channel-id
+                    :thread_ts thread-ts}
+                   payload)})))
 
 (defn permalink [channel-id message-ts]
   (configure-request
