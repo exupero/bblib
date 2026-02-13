@@ -10,21 +10,30 @@
 (defn serve [handler port]
   (server/run-server handler {:port port}))
 
-(defn serve-channels [handler port channels]
-  (server/run-server
-    (fn [{:keys [websocket?] :as req}]
-      (if websocket?
-        (server/as-channel req {:on-open
-                                , (fn [ch]
-                                    (swap! channels conj ch))
-                                :on-receive
-                                , (fn on-receive [ch msg]
-                                    (println "Received data on" ch ":" (pr-str msg)))
-                                :on-close
-                                , (fn [ch _]
-                                    (swap! channels disj ch))})
-        (handler req)))
-    {:port port}))
+(defn serve-channels
+  ([handler port channels]
+   (serve-channels handler port channels {}))
+  ([handler port channels {:keys [on-open on-receive on-close]
+                           :or {on-open (fn [_])
+                                on-receive (fn [_ _])
+                                on-close (fn [_ _])}}]
+   (server/run-server
+     (fn [{:keys [websocket?] :as req}]
+       (if websocket?
+         (server/as-channel req {:on-open
+                                 , (fn [ch]
+                                     (swap! channels conj ch)
+                                     (on-open ch))
+                                 :on-receive
+                                 , (fn on-receive [ch msg]
+                                     (println "Received data on" ch ":" (pr-str msg))
+                                     (on-receive ch msg))
+                                 :on-close
+                                 , (fn [ch x]
+                                     (swap! channels disj ch)
+                                     (on-close ch x))})
+         (handler req)))
+     {:port port})))
 
 (defn listen-and [js]
   (str "
