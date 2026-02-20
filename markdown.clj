@@ -13,7 +13,8 @@
       str (str/split-lines s))))
 
 (defn frontmatter [s]
-  (when (= "---" (subs s 0 3))
+  (when (and (pos? (count s))
+             (= "---" (subs s 0 3)))
     (yaml/parse-string (frontmatter-text s))))
 
 (defn frontmatter-text+content [s]
